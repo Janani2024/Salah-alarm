@@ -1,26 +1,356 @@
 @import "tailwindcss";
 
+/* ==================================================================
+   Salah Alarm — design tokens
+
+   The palette is the pre-dawn sky, because Fajr is the hardest thing
+   this app has to do. Night indigo grades up to a horizon band; the
+   single accent is dawn amber — first light, and the colour of a
+   ringing alarm. Nothing else competes with it.
+   ================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Sky */
+  --night: #0b1020;
+  --night-2: #131a30;
+  --night-3: #1b2440;
+  --horizon: #2a3358;
+  --horizon-2: #3a457045;
+
+  /* Light */
+  --dawn: #e8a33d;
+  --dawn-soft: #f2c57c;
+  --dawn-dim: #8a6224;
+  --sky: #6f8fd4;
+
+  /* Ink */
+  --ink: #e7eaf3;
+  --ink-2: #b4bcd4;
+  --muted: #8b95b4;
+  --faint: #5d6684;
+
+  /* Signal */
+  --ok: #5fbf9b;
+  --warn: #e0a94a;
+  --risk: #e0705f;
+
+  /* Surfaces */
+  --bg: var(--night);
+  --surface: #121a2ecc;
+  --surface-solid: #141c33;
+  --line: #26304f;
+  --line-soft: #1d2540;
+
+  --radius: 14px;
+  --radius-lg: 22px;
+
+  /* Reused shadows */
+  --lift: 0 1px 0 #ffffff0a inset, 0 10px 30px -18px #00000099;
+  --glow: 0 0 60px -12px #e8a33d55;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/*
+   Light theme keeps the same sky metaphor — a pale daytime sky rather
+   than the cream-paper look — so the horizon arc reads identically in
+   both modes.
+*/
+:root[data-theme="light"] {
+  --night: #eef1f8;
+  --night-2: #e5eaf4;
+  --night-3: #dae1ef;
+  --horizon: #c3cde4;
+  --horizon-2: #a9b6d445;
+
+  --dawn: #b4741a;
+  --dawn-soft: #d99b3f;
+  --dawn-dim: #e8c391;
+  --sky: #4a6bb0;
+
+  --ink: #131a30;
+  --ink-2: #37415f;
+  --muted: #5c6787;
+  --faint: #8a93ad;
+
+  --ok: #2f8a68;
+  --warn: #9a6c12;
+  --risk: #b64434;
+
+  --bg: var(--night);
+  --surface: #ffffffcc;
+  --surface-solid: #ffffff;
+  --line: #ccd5e8;
+  --line-soft: #dde3f0;
+
+  --lift: 0 1px 0 #ffffff inset, 0 10px 30px -20px #1a244a33;
+  --glow: 0 0 60px -12px #b4741a33;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) {
+    --night: #eef1f8;
+    --night-2: #e5eaf4;
+    --night-3: #dae1ef;
+    --horizon: #c3cde4;
+    --horizon-2: #a9b6d445;
+
+    --dawn: #b4741a;
+    --dawn-soft: #d99b3f;
+    --dawn-dim: #e8c391;
+    --sky: #4a6bb0;
+
+    --ink: #131a30;
+    --ink-2: #37415f;
+    --muted: #5c6787;
+    --faint: #8a93ad;
+
+    --ok: #2f8a68;
+    --warn: #9a6c12;
+    --risk: #b64434;
+
+    --bg: var(--night);
+    --surface: #ffffffcc;
+    --surface-solid: #ffffff;
+    --line: #ccd5e8;
+    --line-soft: #dde3f0;
+
+    --lift: 0 1px 0 #ffffff inset, 0 10px 30px -20px #1a244a33;
+    --glow: 0 0 60px -12px #b4741a33;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-night-2: var(--night-2);
+  --color-night-3: var(--night-3);
+  --color-horizon: var(--horizon);
+  --color-dawn: var(--dawn);
+  --color-dawn-soft: var(--dawn-soft);
+  --color-sky: var(--sky);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-risk: var(--risk);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-surface-solid: var(--surface-solid);
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+  --font-display: var(--font-instrument), Georgia, "Times New Roman", serif;
+}
+
+/* ==================================================================
+   Base
+   ================================================================== */
+
+html {
+  background: var(--bg);
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] html,
+html:has(:root[data-theme="light"]) {
+  color-scheme: light;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(120% 70% at 50% -10%, var(--night-3) 0%, transparent 60%),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Times, countdowns and any figure that must not jitter. */
+.tnum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Small tracked label — used for section eyebrows. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ==================================================================
+   Components
+   ================================================================== */
+
+@layer components {
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--lift);
+    backdrop-filter: blur(12px);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--night-2);
+    color: var(--ink);
+    padding: 0.7rem 1.15rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background 140ms ease,
+      border-color 140ms ease,
+      transform 140ms ease;
+  }
+  .btn:hover:not(:disabled) {
+    background: var(--night-3);
+    border-color: var(--horizon);
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--dawn);
+    border-color: transparent;
+    color: #1a1206;
+    font-weight: 600;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--dawn-soft);
+    border-color: transparent;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--ink-2);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--night-2);
+    border-color: var(--line-soft);
+  }
+
+  .btn-lg {
+    padding: 1.15rem 1.6rem;
+    font-size: 1.05rem;
+    border-radius: var(--radius);
+  }
+
+  .field {
+    width: 100%;
+    background: var(--night-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--ink);
+    padding: 0.75rem 0.9rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--dawn);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--dawn) 22%, transparent);
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .row:last-child {
+    border-bottom: none;
+  }
+}
+
+/* Focus visibility is a floor, not a feature. */
+:focus-visible {
+  outline: 2px solid var(--dawn);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ==================================================================
+   Motion — restrained, and fully removable
+   ================================================================== */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes sweep {
+  from {
+    stroke-dashoffset: var(--dash);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.rise {
+  animation: rise 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.breathe {
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scrollbars that don't shout. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
 }
